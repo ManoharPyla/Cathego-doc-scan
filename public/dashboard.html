@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Comparison - Dashboard</title>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 8px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.5;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            background-color: var(--bg-white);
+            box-shadow: var(--shadow);
+            border-radius: var(--radius);
+            margin-bottom: 24px;
+        }
+        
+        .brand {
+            display: flex;
+            align-items: center;
+        }
+        
+        .brand h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-right: 16px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .credit-badge {
+            background-color: var(--primary);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 9999px;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+        
+        .credit-badge:hover {
+            background-color: var(--primary-hover);
+        }
+        
+        .logout-btn {
+            background-color: var(--danger);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+        
+        .logout-btn:hover {
+            background-color: rgba(239, 68, 68, 0.8);
+        }
+        
+        .welcome-message {
+            background-color: var(--bg-white);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .card {
+            background-color: var(--bg-white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            margin-bottom: 16px;
+        }
+        
+        h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+        
+        .card-description {
+            color: var(--text-light);
+            font-size: 0.875rem;
+            margin-bottom: 16px;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            margin-bottom: 20px;
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        
+        .tab-button {
+            flex: 1;
+            background-color: var(--bg-white);
+            border: none;
+            padding: 10px 16px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: 500;
+            transition: all 0.2s;
+            color: var(--text-light);
+        }
+        
+        .tab-button:not(:last-child) {
+            border-right: 1px solid var(--border);
+        }
+        
+        .tab-button.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            font-size: 0.875rem;
+            color: var(--text-dark);
+        }
+        
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-family: inherit;
+            font-size: 0.875rem;
+            background-color: var(--bg-light);
+            transition: border-color 0.2s;
+        }
+        
+        input[type="text"]:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            width: 100%;
+        }
+        
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+        
+        button:disabled {
+            background-color: var(--text-light);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        .file-upload {
+            margin-bottom: 16px;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            display: block;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+        
+        .file-input-button {
+            display: block;
+            background-color: var(--bg-light);
+            border: 1px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .file-input-button:hover {
+            border-color: var(--primary);
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+        
+        .custom-file-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        
+        .file-name {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            margin-top: 8px;
+        }
+        
+        .message {
+            padding: 12px 16px;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            margin-top: 16px;
+            display: none;
+        }
+        
+        .success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border-left: 4px solid var(--success);
+        }
+        
+        .error {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border-left: 4px solid var(--danger);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .loading-spinner {
+            border: 3px solid rgba(59, 130, 246, 0.3);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 8px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .comparison-filters {
+            background-color: var(--bg-light);
+            padding: 16px;
+            border-radius: var(--radius);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .filter-label {
+            margin-right: 12px;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+        
+        select {
+            padding: 8px 12px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background-color: var(--bg-white);
+        }
+        
+        .results-container {
+            background-color: var(--bg-white);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-top: 24px;
+            box-shadow: var(--shadow);
+            display: none;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        th {
+            font-weight: 600;
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+        }
+        
+        tr:hover {
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+        
+        .document-type {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .type-text {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+        
+        .type-pdf {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+        
+        .document-preview {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 250px;
+            color: var(--text-light);
+            font-size: 0.875rem;
+        }
+        
+        .document-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-button {
+            padding: 4px 10px;
+            border-radius: 4px;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .action-button:hover {
+            background-color: var(--border);
+        }
+        
+        .similarity-bar-container {
+            background-color: rgba(100, 116, 139, 0.1);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        
+        .similarity-bar {
+            height: 100%;
+            background-color: var(--success);
+            border-radius: 4px;
+        }
+        
+        #my-documents {
+            background-color: var(--bg-white);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            margin-top: 24px;
+        }
+        
+        #my-documents h2 {
+            margin-bottom: 16px;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            
+            .user-info {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <h1>Document Comparison Tool</h1>
+        </div>
+        <div class="user-info">
+            <div class="credit-badge" id="credits">Credits: --</div>
+            <button class="logout-btn" id="logout-btn">Logout</button>
+        </div>
+    </header>
+    
+    <div class="welcome-message">
+        <p>Welcome, <span id="user-email">--</span>! Upload documents (text or PDF) for comparison or compare text directly against your document library.</p>
+    </div>
+    
+    <div class="container">
+        <!-- Upload Document Card -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Upload Document</h2>
+                <p class="card-description">Upload a document to save in your library (costs 1 credit).</p>
+            </div>
+            
+            <div class="tab-buttons">
+                <button class="tab-button active" data-tab="text-upload">Text Upload</button>
+                <button class="tab-button" data-tab="pdf-upload">PDF Upload</button>
+            </div>
+            
+            <!-- Text Upload Form -->
+            <div id="text-upload" class="tab-content active">
+                <form id="text-upload-form">
+                    <div class="form-group">
+                        <label for="document-name">Document Name:</label>
+                        <input type="text" id="document-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="document-content">Document Content:</label>
+                        <textarea id="document-content" rows="8" required></textarea>
+                    </div>
+                    <button type="submit">Upload Text Document</button>
+                    <div id="text-upload-success" class="message success"></div>
+                    <div id="text-upload-error" class="message error"></div>
+                </form>
+            </div>
+            
+            <!-- PDF Upload Form -->
+            <div id="pdf-upload" class="tab-content">
+                <form id="pdf-upload-form">
+                    <div class="form-group">
+                        <label for="pdf-document-name">Document Name:</label>
+                        <input type="text" id="pdf-document-name" required>
+                    </div>
+                    <div class="file-upload">
+                        <label for="pdf-file">Select PDF File:</label>
+                        <div class="file-input-wrapper">
+                            <div class="file-input-button">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; margin-bottom: 8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                                <span>Choose PDF File</span>
+                                <input type="file" id="pdf-file" class="custom-file-input" accept=".pdf" required>
+                            </div>
+                        </div>
+                        <div id="pdf-file-name" class="file-name">No file selected</div>
+                    </div>
+                    <div class="loading" id="pdf-loading">
+                        <div class="loading-spinner"></div>
+                        <p>Extracting text from PDF...</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="pdf-content-preview">Extracted Text Preview:</label>
+                        <textarea id="pdf-content-preview" rows="8" readonly disabled></textarea>
+                    </div>
+                    <button type="submit" id="pdf-upload-button" disabled>Upload PDF Document</button>
+                    <div id="pdf-upload-success" class="message success"></div>
+                    <div id="pdf-upload-error" class="message error"></div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Compare Documents Card -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Compare Documents</h2>
+                <p class="card-description">Compare text or PDF against your document library (costs 1 credit).</p>
+            </div>
+            
+            <div class="tab-buttons">
+                <button class="tab-button active" data-tab="text-compare">Text Compare</button>
+                <button class="tab-button" data-tab="pdf-compare">PDF Compare</button>
+            </div>
+            
+            <!-- Text Compare Form -->
+            <div id="text-compare" class="tab-content active">
+                <form id="text-compare-form">
+                    <div class="form-group">
+                        <label for="compare-text">Text to Compare:</label>
+                        <textarea id="compare-text" rows="8" required></textarea>
+                    </div>
+                    <div class="comparison-filters">
+                        <span class="filter-label">Minimum similarity threshold:</span>
+                        <select id="similarity-threshold">
+                            <option value="0.3">30%</option>
+                            <option value="0.5" selected>50%</option>
+                            <option value="0.7">70%</option>
+                            <option value="0.9">90%</option>
+                        </select>
+                    </div>
+                    <button type="submit" id="text-compare-btn">Compare Text</button>
+                    <div id="text-compare-success" class="message success"></div>
+                    <div id="text-compare-error" class="message error"></div>
+                </form>
+            </div>
+            
+            <!-- PDF Compare Form -->
+            <div id="pdf-compare" class="tab-content">
+                <form id="pdf-compare-form">
+                    <div class="file-upload">
+                        <label for="compare-pdf-file">Select PDF File to Compare:</label>
+                        <div class="file-input-wrapper">
+                            <div class="file-input-button">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; margin-bottom: 8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                                <span>Choose PDF File</span>
+                                <input type="file" id="compare-pdf-file" class="custom-file-input" accept=".pdf" required>
+                            </div>
+                        </div>
+                        <div id="compare-pdf-file-name" class="file-name">No file selected</div>
+                    </div>
+                    <div class="loading" id="compare-pdf-loading">
+                        <div class="loading-spinner"></div>
+                        <p>Extracting text from PDF...</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="compare-pdf-content">Extracted Text Preview:</label>
+                        <textarea id="compare-pdf-content" rows="8" readonly disabled></textarea>
+                    </div>
+                    <div class="comparison-filters">
+                        <span class="filter-label">Minimum similarity threshold:</span>
+                        <select id="pdf-similarity-threshold">
+                            <option value="0.3">30%</option>
+                            <option value="0.5" selected>50%</option>
+                            <option value="0.7">70%</option>
+                            <option value="0.9">90%</option>
+                        </select>
+                    </div>
+                    <button type="submit" id="pdf-compare-btn" disabled>Compare PDF</button>
+                    <div id="pdf-compare-success" class="message success"></div>
+                    <div id="pdf-compare-error" class="message error"></div>
+                </form>
+            </div>
+            
+            <!-- Comparison Results -->
+            <div id="results" class="results-container">
+                <h3>Comparison Results</h3>
+                <table id="results-table">
+                    <thead>
+                        <tr>
+                            <th>Document</th>
+                            <th>Similarity</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="results-content"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- My Documents Section -->
+    <div id="my-documents">
+        <h2>My Documents</h2>
+        <p id="no-documents" style="display: none;">You haven't uploaded any documents yet.</p>
+        <table id="documents-table" style="display: none;">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Preview</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="documents-list">
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Include PDF.js library for PDF text extraction -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    
+    <script>
+        // Set the PDF.js worker source
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+        
+        // Tab switching functionality
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const tabId = button.getAttribute('data-tab');
+                const parentContainer = button.closest('.card');
+                
+                // Remove active class from all tabs and content in this container
+                parentContainer.querySelectorAll('.tab-button').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                parentContainer.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                // Add active class to clicked tab and its content
+                button.classList.add('active');
+                parentContainer.querySelector(`#${tabId}`).classList.add('active');
+            });
+        });
+        
+        // Handle PDF file selection for uploading
+        document.getElementById('pdf-file').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            // Display the file name
+            document.getElementById('pdf-file-name').textContent = file.name;
+            
+            // Use default name from filename (without extension)
+            const fileName = file.name.replace(/\.[^/.]+$/, "");
+            document.getElementById('pdf-document-name').value = fileName;
+            
+            // Show loading spinner
+            document.getElementById('pdf-loading').style.display = 'block';
+            
+            try {
+                // Extract text from PDF
+                const text = await extractTextFromPDF(file);
+                
+                // Display text preview
+                document.getElementById('pdf-content-preview').value = text;
+                
+                // Enable upload button
+                document.getElementById('pdf-upload-button').disabled = false;
+            } catch (error) {
+                console.error('Error extracting text from PDF:', error);
+                document.getElementById('pdf-upload-error').textContent = 'Failed to extract text from PDF. Please try another file.';
+                document.getElementById('pdf-upload-error').style.display = 'block';
+            } finally {
+                // Hide loading spinner
+                document.getElementById('pdf-loading').style.display = 'none';
+            }
+        });
+        
+        // Handle PDF file selection for comparison
+        document.getElementById('compare-pdf-file').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            // Display the file name
+            document.getElementById('compare-pdf-file-name').textContent = file.name;
+            
+            // Show loading spinner
+            document.getElementById('compare-pdf-loading').style.display = 'block';
+            
+            try {
+                // Extract text from PDF
+                const text = await extractTextFromPDF(file);
+                
+                // Display text preview
+                document.getElementById('compare-pdf-content').value = text;
+                
+                // Enable compare button
+                document.getElementById('pdf-compare-btn').disabled = false;
+            } catch (error) {
+                console.error('Error extracting text from PDF:', error);
+                document.getElementById('pdf-compare-error').textContent = 'Failed to extract text from PDF. Please try another file.';
+                document.getElementById('pdf-compare-error').style.display = 'block';
+            } finally {
+                // Hide loading spinner
+                document.getElementById('compare-pdf-loading').style.display = 'none';
+            }
+        });
+        
+        // Function to extract text from PDF
+        async function extractTextFromPDF(file) {
+            return new Promise(async (resolve, reject) => {
+                try {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                    let text = '';
+                    
+                    // Extract text from each page
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const content = await page.getTextContent();
+                        const pageText = content.items.map(item => item.str).join(' ');
+                        text += pageText + '\n\n';
+                    }
+                    
+                    resolve(text.trim());
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        }
+        
+        // Fetch user data on page load
+        async function loadUserData() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/user', {
+                    headers: {
+                        'Authorization': token
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('user-email').textContent = data.email;
+                    document.getElementById('credits').textContent = `Credits: ${data.credits}`;
+                    
+                    // Disable comparison if no credits
+                    if (data.credits < 1) {
+                        document.getElementById('text-compare-btn').disabled = true;
+                        document.getElementById('text-compare-btn').title = 'You need at least 1 credit';
+                        document.getElementById('pdf-compare-btn').disabled = true;
+                        document.getElementById('pdf-compare-btn').title = 'You need at least 1 credit';
+                    }
+                } else {
+                    // If unauthorized, redirect to login
+                    window.location.href = '/';
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
+            }
+        }
+
+        // Fetch user's documents
+        async function loadDocuments() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/documents', {
+                    headers: {
+                        'Authorization': token
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const documentsList = document.getElementById('documents-list');
+                    const noDocuments = document.getElementById('no-documents');
+                    const documentsTable = document.getElementById('documents-table');
+                    
+                    if (data.documents.length === 0) {
+                        noDocuments.style.display = 'block';
+                        documentsTable.style.display = 'none';
+                    } else {
+                        documentsList.innerHTML = '';
+                        data.documents.forEach(doc => {
+                            const row = document.createElement('tr');
+                            
+                            // Format the date
+                            const date = new Date(doc.date);
+                            const formattedDate = date.toLocaleString();
+                            
+                            // Create a preview (first 50 characters)
+                            const preview = doc.content.length > 50 
+                                ? doc.content.substring(0, 50) + '...' 
+                                : doc.content;
+                            
+                            // Document type badge
+                            const typeClass = doc.type === 'pdf' ? 'type-pdf' : 'type-text';
+                            const typeLabel = doc.type === 'pdf' ? 'PDF' : 'Text';
+                            
+                            row.innerHTML = `
+                                <td>${doc.name}</td>
+                                <td><span class="document-type ${typeClass}">${typeLabel}</span></td>
+                                <td class="document-preview">${preview}</td>
+                                <td>${formattedDate}</td>
+                                <td class="document-actions">
+                                    <span class="action-button view-document" data-id="${doc.id}">View</span>
+                                    <span class="action-button delete-document" data-id="${doc.id}">Delete</span>
+                                </td>
+                            `;
+                            documentsList.appendChild(row);
+                        });
+                        // Add event listeners for document actions
+                        document.querySelectorAll('.view-document').forEach(button => {
+                            button.addEventListener('click', () => viewDocument(button.getAttribute('data-id')));
+                        });
+                        
+                        document.querySelectorAll('.delete-document').forEach(button => {
+                            button.addEventListener('click', () => deleteDocument(button.getAttribute('data-id')));
+                        });
+                        
+                        noDocuments.style.display = 'none';
+                        documentsTable.style.display = 'table';
+                    }
+                } else {
+                    console.error('Failed to load documents');
+                }
+            } catch (error) {
+                console.error('Error loading documents:', error);
+            }
+        }
+        
+        // Delete a document
+        async function deleteDocument(docId) {
+            if (!confirm('Are you sure you want to delete this document?')) {
+                return;
+            }
+            
+            // Validate docId
+            if (!docId) {
+                console.error('No document ID provided for deletion');
+                alert('Error: No document ID specified');
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    console.error('No authentication token found');
+                    alert('You are not authenticated. Please log in again.');
+                    window.location.href = '/'; // Redirect to login
+                    return;
+                }
+                
+                console.log(`Attempting to delete document with ID: ${docId}`);
+                
+                const response = await fetch(`/api/documents/${docId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': token,
+                        'Content-Type': 'application/json',
+                        // Add additional debugging headers
+                        'X-Debug-Request': 'document-deletion'
+                    }
+                });
+                
+                // Comprehensive logging
+                console.group('Document Deletion Request');
+                console.log('Document ID:', docId);
+                console.log('Request URL:', `/api/documents/${docId}`);
+                console.log('Response Status:', response.status);
+                console.log('Response Headers:', Object.fromEntries(response.headers.entries()));
+                
+                // Get response text for detailed error analysis
+                const responseText = await response.text();
+                console.log('Raw Response Text:', responseText);
+                console.groupEnd();
+                
+                // Attempt to parse response
+                let responseData;
+                try {
+                    responseData = responseText ? JSON.parse(responseText) : {};
+                } catch (parseError) {
+                    console.error('JSON Parsing Error:', {
+                        error: parseError,
+                        responseText: responseText
+                    });
+                    
+                    // If it's an HTML error page, show the error message
+                    const errorMatch = responseText.match(/<pre>(.*?)<\/pre>/);
+                    const errorMessage = errorMatch 
+                        ? errorMatch[1] 
+                        : 'Failed to delete document due to an unexpected server response';
+                    
+                    alert(errorMessage);
+                    return;
+                }
+                
+                // Handle response based on status
+                if (response.ok) {
+                    // Successful deletion
+                    loadDocuments();
+                    alert('Document deleted successfully');
+                } else {
+                    // Server returned an error
+                    console.error('Delete Document Error:', {
+                        status: response.status,
+                        responseData: responseData
+                    });
+                    
+                    const errorMessage = responseData.error 
+                        || `Failed to delete document. Server returned ${response.status}`;
+                    alert(errorMessage);
+                }
+            } catch (error) {
+                // Catch any network or unexpected errors
+                console.error('Comprehensive Deletion Error:', {
+                    name: error.name,
+                    message: error.message,
+                    stack: error.stack
+                });
+                
+                alert('An unexpected error occurred while deleting the document. Please try again or contact support.');
+            }
+        }
+        
+        // View document content in a modal or popup
+        function viewDocument(docId) {
+            // Implement a modal to view the document
+            alert('View document functionality will be implemented here');
+        }
+        
+        // Handle text document upload
+        document.getElementById('text-upload-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('document-name').value;
+            const content = document.getElementById('document-content').value;
+            const successMsg = document.getElementById('text-upload-success');
+            const errorMsg = document.getElementById('text-upload-error');
+            
+            // Hide previous messages
+            successMsg.style.display = 'none';
+            errorMsg.style.display = 'none';
+            
+            if (!name || !content) {
+                errorMsg.textContent = 'Document name and content are required';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': token
+                    },
+                    body: JSON.stringify({ name, content, type: 'text' })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Update credits display
+                    document.getElementById('credits').textContent = `Credits: ${data.credits}`;
+                    
+                    // Show success message
+                    successMsg.textContent = 'Document uploaded successfully!';
+                    successMsg.style.display = 'block';
+                    
+                    // Clear form
+                    document.getElementById('document-name').value = '';
+                    document.getElementById('document-content').value = '';
+                    
+                    // Reload documents
+                    loadDocuments();
+                } else {
+                    errorMsg.textContent = data.error || 'Upload failed';
+                    errorMsg.style.display = 'block';
+                }
+            } catch (error) {
+                errorMsg.textContent = 'An error occurred. Please try again.';
+                errorMsg.style.display = 'block';
+                console.error(error);
+            }
+        });
+        
+        // Handle PDF document upload
+        document.getElementById('pdf-upload-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('pdf-document-name').value;
+            const content = document.getElementById('pdf-content-preview').value;
+            const successMsg = document.getElementById('pdf-upload-success');
+            const errorMsg = document.getElementById('pdf-upload-error');
+            
+            // Hide previous messages
+            successMsg.style.display = 'none';
+            errorMsg.style.display = 'none';
+            
+            if (!name || !content) {
+                errorMsg.textContent = 'Document name and content are required';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': token
+                    },
+                    body: JSON.stringify({ name, content, type: 'pdf' })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Update credits display
+                    document.getElementById('credits').textContent = `Credits: ${data.credits}`;
+                    
+                    // Show success message
+                    successMsg.textContent = 'PDF document uploaded successfully!';
+                    successMsg.style.display = 'block';
+                    
+                    // Clear form
+                    document.getElementById('pdf-document-name').value = '';
+                    document.getElementById('pdf-content-preview').value = '';
+                    document.getElementById('pdf-file').value = '';
+                    document.getElementById('pdf-file-name').textContent = 'No file selected';
+                    document.getElementById('pdf-upload-button').disabled = true;
+                    
+                    // Reload documents
+                    loadDocuments();
+                } else {
+                    errorMsg.textContent = data.error || 'Upload failed';
+                    errorMsg.style.display = 'block';
+                }
+            } catch (error) {
+                errorMsg.textContent = 'An error occurred. Please try again.';
+                errorMsg.style.display = 'block';
+                console.error(error);
+            }
+        });
+        
+        // Handle text comparison
+        document.getElementById('text-compare-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const text = document.getElementById('compare-text').value;
+            const threshold = document.getElementById('similarity-threshold').value;
+            const successMsg = document.getElementById('text-compare-success');
+            const errorMsg = document.getElementById('text-compare-error');
+
+            // Hide previous messages
+            successMsg.style.display = 'none';
+            errorMsg.style.display = 'none';
+            
+            if (!text) {
+                errorMsg.textContent = 'Text to compare is required';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/compare', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': localStorage.getItem('token')
+                    },
+                    body: JSON.stringify({ text, threshold })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Update credits display
+                    document.getElementById('credits').textContent = `Credits: ${data.credits}`;
+                    
+                    // Show success message
+                    successMsg.textContent = 'Comparison completed successfully!';
+                    successMsg.style.display = 'block';
+                    
+                    // Display results
+                    displayResults(data.results);
+                } else {
+                    errorMsg.textContent = data.error || 'Comparison failed';
+                    errorMsg.style.display = 'block';
+                }
+            } catch (error) {
+                errorMsg.textContent = 'An error occurred. Please try again.';
+                errorMsg.style.display = 'block';
+                console.error('Error during comparison:', error);
+            }
+        });
+        
+        // Handle PDF comparison
+        document.getElementById('pdf-compare-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const text = document.getElementById('compare-pdf-content').value;
+            const threshold = document.getElementById('pdf-similarity-threshold').value;
+            const successMsg = document.getElementById('pdf-compare-success');
+            const errorMsg = document.getElementById('pdf-compare-error');
+
+            // Hide previous messages
+            successMsg.style.display = 'none';
+            errorMsg.style.display = 'none';
+            
+            if (!text) {
+                errorMsg.textContent = 'PDF content to compare is required';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/compare', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': localStorage.getItem('token')
+                    },
+                    body: JSON.stringify({ text, threshold })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Update credits display
+                    document.getElementById('credits').textContent = `Credits: ${data.credits}`;
+                    
+                    // Show success message
+                    successMsg.textContent = 'Comparison completed successfully!';
+                    successMsg.style.display = 'block';
+                    
+                    // Display results
+                    displayResults(data.results);
+                } else {
+                    errorMsg.textContent = data.error || 'Comparison failed';
+                    errorMsg.style.display = 'block';
+                }
+            } catch (error) {
+                errorMsg.textContent = 'An error occurred. Please try again.';
+                errorMsg.style.display = 'block';
+                console.error('Error during comparison:', error);
+            }
+        });
+        
+        // Display comparison results
+        function displayResults(results) {
+            const resultsContainer = document.getElementById('results-content');
+            resultsContainer.innerHTML = ''; // Clear previous results
+
+            results.forEach(result => {
+                const row = document.createElement('tr');
+
+                // Create a cell for the document name
+                const nameCell = document.createElement('td');
+                nameCell.textContent = result.name;
+
+                // Create a cell for the similarity percentage
+                const similarityCell = document.createElement('td');
+                similarityCell.textContent = `${result.similarity}%`;
+                
+                // Create a similarity bar
+                const similarityBarContainer = document.createElement('div');
+                similarityBarContainer.className = 'similarity-bar-container';
+                const similarityBar = document.createElement('div');
+                similarityBar.className = 'similarity-bar';
+                similarityBar.style.width = `${result.similarity}%`;
+                similarityBarContainer.appendChild(similarityBar);
+
+                // Append the similarity bar to the similarity cell
+                similarityCell.appendChild(similarityBarContainer);
+
+                // Create a cell for additional details (if needed)
+                const detailsCell = document.createElement('td');
+                detailsCell.textContent = 'View Details'; // Placeholder for future functionality
+                detailsCell.style.cursor = 'pointer';
+                detailsCell.onclick = () => {
+                    // Implement functionality to show detailed comparison
+                    alert(`Showing details for ${result.name}`);
+                };
+
+                // Append cells to the row
+                row.appendChild(nameCell);
+                row.appendChild(similarityCell);
+                row.appendChild(detailsCell);
+                
+                // Append the row to the results table
+                resultsContainer.appendChild(row);
+            });
+
+            document.getElementById('results').style.display = 'block';
+        }
+        
+        // Load user data and documents on page load
+        loadUserData();
+        loadDocuments();
+    </script>
+</body>
+</html>

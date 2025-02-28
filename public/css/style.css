@@ -1,0 +1,9 @@
+body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+.auth-container, .scanner-container { max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; }
+.form-toggle { margin-bottom: 20px; }
+form input { display: block; width: 100%; margin: 10px 0; padding: 8px; }
+button { padding: 8px 16px; background: #007bff; color: white; border: none; cursor: pointer; }
+.user-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+#result { margin-top: 10px; padding: 10px; }
+.error { color: #dc3545; }
+.success { color: #28a745; }
