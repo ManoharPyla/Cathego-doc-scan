@@ -57,8 +57,8 @@ The Document Comparison Tool is a web application that allows users to upload, c
 
 Here are some sample images related to the project:
 
-![Sample Image 1](public/assets/sample1.jpg)
-![Sample Image 2](public/assets/sample2.jpg)
+public/assests/sample1.jpg
+public/assests/sample2.jpg
 
 ## API Endpoints
 
