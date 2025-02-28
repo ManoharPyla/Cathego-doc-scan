@@ -66,17 +66,55 @@
         }
         
         .credit-badge {
-            background-color: var(--primary);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
             color: white;
             padding: 8px 16px;
-            border-radius: 9999px;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: background-color 0.2s;
+            border-radius: 16px;
+            font-size: 0.875rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2);
+            position: relative;
+            overflow: hidden;
+            border: 2px solid rgba(255,255,255,0.2);
         }
         
         .credit-badge:hover {
-            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(59, 130, 246, 0.3);
+        }
+        
+        .credit-badge::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255,255,255,0.1);
+            transform: rotate(45deg);
+            transition: all 0.3s ease;
+            opacity: 0;
+        }
+        
+        .credit-badge:hover::before {
+            opacity: 1;
+        }
+        
+        .credit-badge-icon {
+            width: 16px;
+            height: 16px;
+            fill: white;
+            stroke: white;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
         
         .logout-btn {
@@ -458,7 +496,14 @@
             <h1>Document Comparison Tool</h1>
         </div>
         <div class="user-info">
-            <div class="credit-badge" id="credits">Credits: --</div>
+            <div class="credit-badge" id="credits" title="Your available credits for document comparison">
+                <svg xmlns="http://www.w3.org/2000/svg" class="credit-badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                Credits: --
+            </div>
             <button class="logout-btn" id="logout-btn">Logout</button>
         </div>
     </header>
