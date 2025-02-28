@@ -1220,6 +1220,34 @@
             document.getElementById('results').style.display = 'block';
         }
         
+        // Logout button event listener
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/api/logout', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': localStorage.getItem('token')
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Remove the token from localStorage
+                    localStorage.removeItem('token');
+                    
+                    // Redirect to login page
+                    window.location.href = '/';
+                } else {
+                    console.error('Logout failed');
+                    alert('Failed to logout. Please try again.');
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+                alert('An error occurred during logout. Please try again.');
+            }
+        });
+        
         // Load user data and documents on page load
         loadUserData();
         loadDocuments();

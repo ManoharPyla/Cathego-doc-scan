@@ -759,9 +759,42 @@ app.post('/api/compare/pdfs', authenticate, async (req, res) => {
 });
 
 // Logout endpoint
+// Improved logout endpoint
 app.get('/api/logout', (req, res) => {
-  req.session.destroy();
-  res.json({ success: true });
+  // Properly destroy the session
+  if (req.session) {
+    // Get the user information before destroying the session
+    const userId = req.session.user ? req.session.user.id : null;
+    
+    req.session.destroy((err) => {
+      if (err) {
+        console.error('Session destruction error:', err);
+        return res.status(500).json({ success: false, error: 'Failed to destroy session' });
+      }
+      
+      // If user was authenticated with a token, also remove the token from sessions.json
+      if (userId && req.headers.authorization) {
+        try {
+          const sessionsPath = path.join(__dirname, 'data', 'sessions.json');
+          const sessions = JSON.parse(fs.readFileSync(sessionsPath));
+          const updatedSessions = sessions.filter(s => 
+            !(s.user && s.user.id === userId && s.token === req.headers.authorization)
+          );
+          fs.writeFileSync(sessionsPath, JSON.stringify(updatedSessions, null, 2));
+        } catch (err) {
+          console.error('Error removing session token:', err);
+        }
+      }
+      
+      // Clear the cookie
+      res.clearCookie('connect.sid');
+      
+      // Return success response
+      res.json({ success: true });
+    });
+  } else {
+    res.json({ success: true });
+  }
 });
 
 // Final error handling middleware
