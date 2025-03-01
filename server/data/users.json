@@ -3,13 +3,13 @@
     "id": "9af3d1b5-885e-437c-a561-d3342d0ddb71",
     "email": "test@gmail.com",
     "password": "test",
-    "credits": 199871
+    "credits": 199870
   },
   {
     "id": "a9a86a55-1589-47cb-b5fe-f50a3b9978e7",
     "email": "admin",
     "password": "admin",
-    "credits": 0
+    "credits": 50
   },
   {
     "id": "01452e2f-44b5-4fa5-ad35-4fbd16673aab",

@@ -488,6 +488,227 @@
                 justify-content: space-between;
             }
         }
+        
+        /* Improved Credit Purchase Modal Styles */
+        .credit-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+        
+        .credit-modal.show {
+            display: flex;
+            opacity: 1;
+        }
+        
+        .credit-modal-content {
+            background: var(--bg-white);
+            border-radius: 16px;
+            width: 500px;
+            padding: 32px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            transform: translateY(-20px);
+            opacity: 0;
+            transition: all 0.4s ease;
+        }
+        
+        .credit-modal.show .credit-modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .credit-modal-content h2 {
+            color: var(--text-dark);
+            margin-bottom: 16px;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .credit-modal-content .card-description {
+            color: var(--text-light);
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+        
+        .credit-purchase-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .credit-option {
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .credit-option h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+        
+        .credit-option p {
+            font-size: 0.875rem;
+            color: var(--text-light);
+        }
+        
+        .credit-option::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg, 
+                transparent, 
+                rgba(59, 130, 246, 0.05), 
+                transparent
+            );
+            transform: rotate(45deg);
+            transition: all 0.3s ease;
+            opacity: 0;
+        }
+        
+        .credit-option:hover::before {
+            opacity: 1;
+        }
+        
+        .credit-option:hover {
+            border-color: var(--primary);
+            box-shadow: 0 6px 12px rgba(59, 130, 246, 0.1);
+            transform: translateY(-5px);
+        }
+        
+        .credit-option.selected {
+            border-color: var(--primary);
+            background-color: rgba(59, 130, 246, 0.05);
+            box-shadow: 0 6px 12px rgba(59, 130, 246, 0.1);
+        }
+        
+        #purchase-credits-btn {
+            width: 100%;
+            padding: 12px 16px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-bottom: 12px;
+        }
+        
+        #purchase-credits-btn:hover {
+            background-color: var(--primary-hover);
+        }
+        
+        #purchase-credits-btn:disabled {
+            background-color: var(--border);
+            cursor: not-allowed;
+        }
+        
+        #cancel-purchase-btn {
+            width: 100%;
+            padding: 12px 16px;
+            background-color: transparent;
+            color: var(--text-light);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        #cancel-purchase-btn:hover {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+        }
+        
+        .checkout-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(16, 185, 129, 0.1);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1100;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .checkout-animation.show {
+            display: flex;
+            opacity: 1;
+        }
+        
+        .checkout-success {
+            text-align: center;
+            background: var(--bg-white);
+            padding: 40px;
+            border-radius: var(--radius);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            animation: checkoutPulse 1s ease-in-out;
+        }
+        
+        @keyframes checkoutPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .payment-simulation-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1200;
+        }
+        
+        .payment-simulation-modal {
+            background: var(--bg-white);
+            border-radius: var(--radius);
+            width: 400px;
+            padding: 24px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .payment-content {
+            text-align: center;
+        }
+        
+        .payment-spinner {
+            border: 3px solid rgba(59, 130, 246, 0.3);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 8px;
+        }
     </style>
 </head>
 <body>
@@ -499,7 +720,7 @@
             <div class="credit-badge" id="credits" title="Your available credits for document comparison">
                 <svg xmlns="http://www.w3.org/2000/svg" class="credit-badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    <polyline points="17 8 12 3 7 8"></polyline>
                     <line x1="12" y1="3" x2="12" y2="15"></line>
                 </svg>
                 Credits: --
@@ -1289,13 +1510,182 @@
                 }
             } catch (error) {
                 console.error('Logout error:', error);
-                alert('An error occurred during logout. Please try again.');
+                alert('An unexpected error occurred during logout. Please try again.');
             }
         });
         
         // Load user data and documents on page load
         loadUserData();
         loadDocuments();
+        
+        // Ensure DOM is fully loaded before adding event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get references to all necessary elements
+            const creditModal = document.getElementById('credit-modal');
+            const checkoutAnimation = document.getElementById('checkout-animation');
+            const purchaseCreditsBtn = document.getElementById('purchase-credits-btn');
+            const cancelPurchaseBtn = document.getElementById('cancel-purchase-btn');
+            const creditOptions = document.querySelectorAll('.credit-option');
+            const creditsDisplay = document.getElementById('credits');
+            const creditsPurchasedMessage = document.getElementById('credits-purchased-message');
+            
+            // Validate all required elements exist
+            if (!creditModal || !checkoutAnimation || !purchaseCreditsBtn || 
+                !cancelPurchaseBtn || !creditsDisplay || !creditsPurchasedMessage) {
+                console.error('One or more required elements are missing');
+                return;
+            }
+            
+            // Add credit badge click event to open purchase modal
+            creditsDisplay.addEventListener('click', () => {
+                creditModal.classList.add('show');
+            });
+            
+            // Credit option selection
+            creditOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    // Remove selected class from all options
+                    creditOptions.forEach(opt => opt.classList.remove('selected'));
+                    
+                    // Add selected class to clicked option
+                    option.classList.add('selected');
+                    
+                    // Enable purchase button
+                    purchaseCreditsBtn.disabled = false;
+                });
+            });
+            
+            // Cancel purchase
+            cancelPurchaseBtn.addEventListener('click', () => {
+                creditModal.classList.remove('show');
+            });
+            
+            // Complete purchase
+            purchaseCreditsBtn.addEventListener('click', async () => {
+                // Validate selection
+                const selectedOption = document.querySelector('.credit-option.selected');
+                if (!selectedOption) {
+                    alert('Please select a credit package');
+                    return;
+                }
+                
+                // Get credit details
+                const credits = selectedOption.getAttribute('data-credits');
+                const price = selectedOption.getAttribute('data-price');
+                
+                // Create payment modal
+                const paymentModal = document.createElement('div');
+                paymentModal.innerHTML = `
+                    <div class="payment-simulation-modal-overlay">
+                        <div class="payment-simulation-modal">
+                            <div class="payment-content">
+                                <h2>Secure Payment</h2>
+                                <p>Processing payment for ${credits} credits - $${price}</p>
+                                <div class="payment-spinner"></div>
+                                <p class="payment-status">Processing payment...</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Append to body and ensure it's visible
+                document.body.appendChild(paymentModal);
+                
+                // Ensure modal is displayed
+                const modalOverlay = paymentModal.querySelector('.payment-simulation-modal-overlay');
+                if (modalOverlay) {
+                    modalOverlay.style.display = 'flex';
+                }
+                
+                try {
+                    // Simulate payment processing time
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    
+                    // Call API to add credits
+                    const response = await fetch('/api/purchase-credits', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': localStorage.getItem('token')
+                        },
+                        body: JSON.stringify({ credits: parseInt(credits) })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to purchase credits');
+                    }
+                    
+                    const data = await response.json();
+                    
+                    // Remove payment modal
+                    if (document.body.contains(paymentModal)) {
+                        document.body.removeChild(paymentModal);
+                    }
+                    
+                    // Close credit modal
+                    creditModal.classList.remove('show');
+                    
+                    // Show checkout animation
+                    checkoutAnimation.classList.add('show');
+                    creditsPurchasedMessage.textContent = `${credits} credits added to your account`;
+                    
+                    // Update credits display
+                    creditsDisplay.textContent = `Credits: ${data.credits}`;
+                    
+                    // Hide checkout animation after 3 seconds
+                    setTimeout(() => {
+                        checkoutAnimation.classList.remove('show');
+                    }, 3000);
+                    
+                } catch (error) {
+                    // Remove payment modal in case of error
+                    if (document.body.contains(paymentModal)) {
+                        document.body.removeChild(paymentModal);
+                    }
+                    
+                    console.error('Purchase error:', error);
+                    alert('An error occurred during purchase. Please try again.');
+                }
+            });
+        });
     </script>
+    
+    <!-- Credit Purchase Modal -->
+    <div class="credit-modal" id="credit-modal">
+        <div class="credit-modal-content">
+            <h2>Purchase Credits</h2>
+            <p class="card-description">Select a credit package to continue using the Document Comparison Tool.</p>
+            
+            <div class="credit-purchase-options">
+                <div class="credit-option" data-credits="20" data-price="4.99">
+                    <h3>20 Credits</h3>
+                    <p>$4.99</p>
+                </div>
+                <div class="credit-option" data-credits="50" data-price="9.99">
+                    <h3>50 Credits</h3>
+                    <p>$9.99</p>
+                </div>
+                <div class="credit-option" data-credits="100" data-price="17.99">
+                    <h3>100 Credits</h3>
+                    <p>$17.99</p>
+                </div>
+            </div>
+            
+            <button id="purchase-credits-btn" disabled>Complete Purchase</button>
+            <button id="cancel-purchase-btn">Cancel</button>
+        </div>
+    </div>
+    
+    <!-- Checkout Animation -->
+    <div class="checkout-animation" id="checkout-animation">
+        <div class="checkout-success">
+            <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <h2>Purchase Successful!</h2>
+            <p id="credits-purchased-message">20 credits added to your account</p>
+        </div>
+    </div>
 </body>
 </html>

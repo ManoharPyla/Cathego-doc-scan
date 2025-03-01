@@ -758,6 +758,39 @@ app.post('/api/compare/pdfs', authenticate, async (req, res) => {
     }
 });
 
+// Credit purchase endpoint
+app.post('/api/purchase-credits', authenticate, (req, res) => {
+  const { credits } = req.body;
+  
+  // Validate input
+  if (!credits || credits <= 0) {
+    return res.status(400).json({ error: 'Invalid number of credits' });
+  }
+  
+  const userId = req.user ? req.user.id : req.session.user.id;
+  const usersPath = path.join(__dirname, 'data', 'users.json');
+  const users = JSON.parse(fs.readFileSync(usersPath));
+  
+  // Find user
+  const userIndex = users.findIndex(u => u.id === userId);
+  
+  if (userIndex === -1) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+  
+  // Add credits
+  users[userIndex].credits += parseInt(credits);
+  
+  // Save updated users
+  fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
+  
+  res.json({ 
+    success: true, 
+    credits: users[userIndex].credits,
+    message: `Successfully added ${credits} credits` 
+  });
+});
+
 // Logout endpoint
 // Improved logout endpoint
 app.get('/api/logout', (req, res) => {
