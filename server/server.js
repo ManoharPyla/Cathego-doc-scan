@@ -133,29 +133,62 @@ const initFile = (filePath, initialData) => {
 initFile(path.join(__dirname, 'data', 'users.json'), []);
 initFile(path.join(__dirname, 'data', 'documents.json'), []);
 initFile(path.join(__dirname, 'data', 'sessions.json'), []);
-
 // Authentication middleware
 const authenticate = (req, res, next) => {
-  // Check for session authentication first
-  if (req.session.user) {
-    return next();
+  try {
+    // Check for session authentication first
+    if (req.session && req.session.user) {
+      req.user = req.session.user;
+      return next();
+    }
+    
+    // Fallback to token authentication for API calls
+    const token = req.headers.authorization?.split(' ')[1]; // Extract token from "Bearer <token>"
+    
+    if (!token) {
+      console.log('No authentication token found');
+      return res.status(401).json({ error: 'No authentication token' });
+    }
+    
+    // Read sessions file
+    const sessionsPath = path.join(__dirname, 'data', 'sessions.json');
+    let sessions = [];
+    
+    try {
+      if (fs.existsSync(sessionsPath)) {
+        const rawSessions = fs.readFileSync(sessionsPath, 'utf8');
+        sessions = rawSessions ? JSON.parse(rawSessions) : [];
+      }
+    } catch (readError) {
+      console.error('Error reading sessions file:', readError);
+      return res.status(500).json({ error: 'Failed to read sessions' });
+    }
+    
+    // Find session by token
+    const sessionData = sessions.find(s => s.token === token);
+    
+    if (!sessionData) {
+      console.log('Invalid or expired token');
+      return res.status(401).json({ error: 'Invalid or expired token' });
+    }
+    
+    // Attach user to request
+    req.user = sessionData.user;
+    
+    // Optional: Add token expiration check if needed
+    // const tokenAge = (new Date() - new Date(sessionData.created)) / (1000 * 60 * 60);
+    // if (tokenAge > 24) { // Example: tokens expire after 24 hours
+    //   return res.status(401).json({ error: 'Token expired' });
+    // }
+    
+    next();
+  } catch (error) {
+    console.error('Authentication middleware error:', error);
+    res.status(500).json({ 
+      error: 'Authentication process failed',
+      details: error.message 
+    });
   }
-  
-  // Fallback to token authentication for API calls
-  const token = req.headers.authorization;
-  if (!token) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-  
-  const sessions = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'sessions.json')));
-  const session = sessions.find(s => s.token === token);
-  
-  if (!session) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-  
-  req.user = session.user;
-  next();
 };
 
 // Serve the login page
@@ -240,11 +273,109 @@ app.post('/api/login', (req, res) => {
   
   res.json({ 
     success: true,
-    token, 
+    token, // API token to use for future requests
     email: user.email,
     credits: user.credits
   });
 });
+
+// Comparison endpoint
+app.post('/api/compare', authenticate, async (req, res) => {
+  const requestId = req.requestId; // Use the requestId from middleware
+  try {
+    const { text, threshold = 0.5 } = req.body;
+
+    // Validate input
+    if (!text) {
+      return res.status(400).json({ error: 'Comparison text is required' });
+    }
+
+    const userId = req.user.id; // Get user ID from the authenticated request
+    const users = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'users.json')));
+    const user = users.find(u => u.id === userId);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Safely read documents with error handling
+    let documents = [];
+    try {
+      const documentsPath = path.join(__dirname, 'data', 'documents.json');
+      if (fs.existsSync(documentsPath)) {
+        const rawData = fs.readFileSync(documentsPath, 'utf8');
+        if (rawData) {
+          documents = JSON.parse(rawData);
+          console.log(`[${requestId}] Read ${documents.length} documents from file`);
+        }
+      } else {
+        console.log(`[${requestId}] Documents file does not exist`);
+      }
+    } catch (readError) {
+      console.error(`[${requestId}] Error reading documents:`, readError);
+      return res.status(500).json({ error: 'Failed to read documents' });
+    }
+
+    // Filter for user's documents
+    const userDocuments = documents.filter(doc => doc.userId === userId && doc.content);
+
+    console.log(`[${requestId}] Found ${userDocuments.length} documents for user`);
+
+    if (userDocuments.length === 0) {
+      return res.status(200).json({
+        results: [],
+        message: 'No documents found for comparison'
+      });
+    }
+
+    const results = [];
+
+    for (const doc of userDocuments) {
+      const levenshteinDistance = calculateLevenshteinDistance(text, doc.content);
+      const maxLength = Math.max(text.length, doc.content.length);
+      const similarityPercentage = maxLength > 0 ? Math.min((1 - (levenshteinDistance / maxLength)) * 100, 100) : 0;
+
+      results.push({
+        id: doc.id,
+        name: doc.name,
+        similarity: similarityPercentage.toFixed(2) // Format to two decimal places
+      });
+
+      console.log(`[${requestId}] Compared with document: ${doc.name}, Similarity: ${similarityPercentage.toFixed(2)}%`);
+    }
+
+    // After comparison, return the results along with updated credits
+    res.json({
+      results: results,
+      credits: user.credits // Return the updated credits
+    });
+  } catch (error) {
+    console.error(`[${requestId}] Error processing comparison:`, error);
+    return res.status(500).json({ error: 'Failed to process comparison' });
+  }
+});
+
+// Function to calculate Levenshtein distance (if not defined elsewhere)
+function calculateLevenshteinDistance(a, b) {
+  const tmp = [];
+  let i, j;
+  for (i = 0; i <= a.length; i++) {
+    tmp[i] = [i];
+  }
+  for (j = 0; j <= b.length; j++) {
+    tmp[0][j] = j;
+  }
+  for (i = 1; i <= a.length; i++) {
+    for (j = 1; j <= b.length; j++) {
+      tmp[i][j] = Math.min(
+        tmp[i - 1][j] + 1, // deletion
+        tmp[i][j - 1] + 1, // insertion
+        tmp[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1) // substitution
+      );
+    }
+  }
+  return tmp[a.length][b.length];
+}
 
 // Get user data endpoint
 app.get('/api/user', authenticate, (req, res) => {
@@ -253,16 +384,22 @@ app.get('/api/user', authenticate, (req, res) => {
   const user = users.find(u => u.id === userId);
   
   if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+    return res.status(404).json({ error: 'User not found' });
   }
   
+  console.log('User Data Request:', {
+    userId,
+    credits: user.credits
+  });
+  
   res.json({
-      email: user.email,
-      credits: user.credits // Ensure this is being returned correctly
+    email: user.email,
+    credits: user.credits
   });
 });
 
 // Document upload endpoint
+// Modify the upload endpoint
 app.post('/api/upload', authenticate, (req, res) => {
   const { name, content, type = 'text' } = req.body;
   
@@ -270,24 +407,35 @@ app.post('/api/upload', authenticate, (req, res) => {
     return res.status(400).json({ error: 'Document name and content are required' });
   }
   
-  if (content.length < 10) { // Ensure content is at least 10 characters
-    return res.status(400).json({ error: 'Document content is too short' });
+  const userId = (req.user && req.user.id) || 
+                 (req.session && req.session.user && req.session.user.id);
+  
+  if (!userId) {
+    return res.status(401).json({ error: 'User not authenticated' });
   }
   
-  const userId = req.user ? req.user.id : req.session.user.id;
-  const users = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'users.json')));
-  const user = users.find(u => u.id === userId);
+  const usersPath = path.join(__dirname, 'data', 'users.json');
+  const users = JSON.parse(fs.readFileSync(usersPath));
   
-  if (!user) {
+  const userIndex = users.findIndex(u => u.id === userId);
+  
+  if (userIndex === -1) {
     return res.status(404).json({ error: 'User not found' });
   }
+  
+  const user = users[userIndex];
+  
+  console.log('Upload - User Credits Before:', user.credits);
   
   if (user.credits < 1) {
     return res.status(400).json({ error: 'Insufficient credits' });
   }
-  
+
   // Deduct a credit
   user.credits--;
+  
+  // Save updated users
+  fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
   
   // Save document
   const documents = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'documents.json')));
@@ -296,7 +444,7 @@ app.post('/api/upload', authenticate, (req, res) => {
     id: uuidv4(),
     userId,
     name,
-    content: content.slice(0, 10000), // Limit content length for performance
+    content: content.slice(0, 10000),
     type,
     date: new Date().toISOString(),
     metadata: {
@@ -308,8 +456,7 @@ app.post('/api/upload', authenticate, (req, res) => {
   
   documents.push(newDocument);
   
-  // Save changes
-  fs.writeFileSync(path.join(__dirname, 'data', 'users.json'), JSON.stringify(users, null, 2));
+  // Save documents
   fs.writeFileSync(path.join(__dirname, 'data', 'documents.json'), JSON.stringify(documents, null, 2));
   
   res.json({ 
@@ -582,83 +729,114 @@ function calculateLineSimilarity(line1, line2) {
     return 1 - (distance / maxLength);
 }
 
-// Comparison endpoint
 app.post('/api/compare', authenticate, async (req, res) => {
-    const requestId = req.requestId; // Use the requestId from middleware
-    try {
-        const { text, threshold = 0.5 } = req.body;
+  const requestId = req.requestId;
+  try {
+      const { text, threshold = 0.5 } = req.body;
 
-        // Validate input
-        if (!text) {
-            return res.status(400).json({ error: 'Comparison text is required' });
-        }
+      // Validate input
+      if (!text) {
+          return res.status(400).json({ error: 'Comparison text is required' });
+      }
 
-        const userId = req.user.id; // Get user ID from the authenticated request
-        const users = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'users.json')));
-        const user = users.find(u => u.id === userId);
+      // Get user ID from either req.user or req.session.user
+      const userId = (req.user && req.user.id) || 
+                     (req.session && req.session.user && req.session.user.id);
 
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
-        }
+      if (!userId) {
+          return res.status(401).json({ error: 'User authentication failed' });
+      }
 
-        // Safely read documents with error handling
-        let documents = [];
-        try {
-            const documentsPath = path.join(__dirname, 'data', 'documents.json');
-            if (fs.existsSync(documentsPath)) {
-                const rawData = fs.readFileSync(documentsPath, 'utf8');
-                if (rawData) {
-                    documents = JSON.parse(rawData);
-                    console.log(`[${requestId}] Read ${documents.length} documents from file`);
-                }
-            } else {
-                console.log(`[${requestId}] Documents file does not exist`);
-            }
-        } catch (readError) {
-            console.error(`[${requestId}] Error reading documents:`, readError);
-            return res.status(500).json({ error: 'Failed to read documents' });
-        }
-        
-        // Filter for user's documents
-        const userDocuments = documents.filter(doc => doc.userId === userId && doc.content);
-        
-        console.log(`[${requestId}] Found ${userDocuments.length} documents for user`);
-        
-        if (userDocuments.length === 0) {
-            return res.status(200).json({
-                results: [],
-                message: 'No documents found for comparison'
-            });
-        }
-        
-        const results = [];
-        
-        for (const doc of userDocuments) {
-            const levenshteinDistance = calculateLevenshteinDistance(text, doc.content);
-            const maxLength = Math.max(text.length, doc.content.length);
-            // Calculate similarity percentage and ensure it is capped at 100%
-            const similarityPercentage = maxLength > 0 ? Math.min((1 - (levenshteinDistance / maxLength)) * 100, 100) : 0;
+      // Read users file
+      const usersPath = path.join(__dirname, 'data', 'users.json');
+      const users = JSON.parse(fs.readFileSync(usersPath));
+      
+      // Find user index for updating
+      const userIndex = users.findIndex(u => u.id === userId);
 
-            results.push({
-                id: doc.id,
-                name: doc.name,
-                similarity: similarityPercentage.toFixed(2) // Format to two decimal places
-            });
-            
-            console.log(`[${requestId}] Compared with document: ${doc.name}, Similarity: ${similarityPercentage.toFixed(2)}%`);
-        }
-        
-        // After comparison, return the results along with updated credits
-        res.json({
-            results: results,
-            credits: user.credits // Return the updated credits
-        });
-    } catch (error) {
-        console.error(`[${requestId}] Error processing comparison:`, error);
-        return res.status(500).json({ error: 'Failed to process comparison' });
-    }
+      if (userIndex === -1) {
+          return res.status(404).json({ error: 'User not found' });
+      }
+
+      const user = users[userIndex];
+
+      // Check if user has enough credits
+      console.log('Credits before comparison:', user.credits);
+      if (user.credits < 1) {
+          return res.status(400).json({ error: 'Insufficient credits' });
+      }
+
+      // Deduct credit
+      user.credits--;
+      console.log('Credits after comparison:', user.credits);
+
+      // Save updated users file
+      try {
+          fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
+          console.log('Users file updated successfully');
+      } catch (writeError) {
+          console.error('Error writing users file:', writeError);
+          return res.status(500).json({ error: 'Failed to update user credits' });
+      }
+
+      // Rest of the comparison logic remains the same...
+      let documents = [];
+      try {
+          const documentsPath = path.join(__dirname, 'data', 'documents.json');
+          if (fs.existsSync(documentsPath)) {
+              const rawData = fs.readFileSync(documentsPath, 'utf8');
+              if (rawData) {
+                  documents = JSON.parse(rawData);
+                  console.log(`[${requestId}] Read ${documents.length} documents from file`);
+              }
+          } else {
+              console.log(`[${requestId}] Documents file does not exist`);
+          }
+      } catch (readError) {
+          console.error(`[${requestId}] Error reading documents:`, readError);
+          return res.status(500).json({ error: 'Failed to read documents' });
+      }
+      
+      // Filter for user's documents
+      const userDocuments = documents.filter(doc => doc.userId === userId && doc.content);
+      
+      console.log(`[${requestId}] Found ${userDocuments.length} documents for user`);
+      
+      if (userDocuments.length === 0) {
+          return res.status(200).json({
+              results: [],
+              message: 'No documents found for comparison'
+          });
+      }
+      
+      const results = [];
+      
+      for (const doc of userDocuments) {
+          const levenshteinDistance = calculateLevenshteinDistance(text, doc.content);
+          const maxLength = Math.max(text.length, doc.content.length);
+          const similarityPercentage = maxLength > 0 ? Math.min((1 - (levenshteinDistance / maxLength)) * 100, 100) : 0;
+
+          results.push({
+              id: doc.id,
+              name: doc.name,
+              similarity: similarityPercentage.toFixed(2)
+          });
+          
+          console.log(`[${requestId}] Compared with document: ${doc.name}, Similarity: ${similarityPercentage.toFixed(2)}%`);
+      }
+      
+      res.json({
+          results: results,
+          credits: user.credits // Return the updated credits
+      });
+  } catch (error) {
+      console.error(`[${requestId}] Error processing comparison:`, error);
+      return res.status(500).json({ 
+          error: 'Failed to process comparison',
+          details: error.message 
+      });
+  }
 });
-
 // Similarity calculation utility functions
 function calculateJaccardSimilarity(text1, text2) {
   if (!text1 || !text2) return 0;
